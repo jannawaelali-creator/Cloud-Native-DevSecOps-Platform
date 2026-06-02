@@ -52,8 +52,8 @@ pipeline {
                     echo "Deploying version ${BUILD_NUMBER} to Kubernetes..."
                     sed -i "s/latest/$BUILD_NUMBER/g" k8s/deployment.yaml
 
-                    kubectl apply -f k8s/deployment.yaml
-                    kubectl apply -f k8s/service.yaml
+                    kubectl apply -f deployment.yaml
+                    kubectl apply -f service.yaml
                 '''
               }
     
