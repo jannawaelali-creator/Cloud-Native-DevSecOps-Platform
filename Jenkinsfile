@@ -48,7 +48,7 @@ pipeline {
             steps {
 
               dir('k8s') {
-                withKubeConfig([credentialsId: env.KUBE_CONFIG_CREDS]) {
+                withKubeConfig([credentialsId: 'kubeconfig']) {
                 sh '''
                     echo "Deploying version ${BUILD_NUMBER} to Kubernetes..."
                     sed -i "s/latest/$BUILD_NUMBER/g"   deployment.yml
