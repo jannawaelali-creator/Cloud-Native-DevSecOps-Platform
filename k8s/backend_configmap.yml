@@ -4,8 +4,7 @@ metadata:
   name: backend_config
   namespace: devops-project
 data:
-  
-  API_PORT : "3000"
+  API_PORT: "3000"
   NODE_ENV: "production
  
 
