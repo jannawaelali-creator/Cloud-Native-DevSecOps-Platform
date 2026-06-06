@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DevSecOps Platform Platform</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background: #f4f6f9; }
+        .card { background: white; padding: 30px; border-radius: 8px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { color: #1e293b; }
+        p { color: #10b981; font-weight: bold; font-size: 1.2em; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Cloud-Native Dashboard</h1>
+        <div id="api-status">Connecting to Backend API...</div>
+    </div>
+
+    <script>
+        // We will decouple this hardcoded URL using Ingress in Phase 3!
+        fetch('http://localhost:30007/') 
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('api-status').innerHTML = `<p>${data}</p>`;
+            })
+            .catch(err => {
+                document.getElementById('api-status').innerText = "Failed to communicate with API.";
+            });
+    </script>
+</body>
+</html>

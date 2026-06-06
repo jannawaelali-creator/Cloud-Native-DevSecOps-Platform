@@ -43,3 +43,9 @@ spec:
           httpGet:
             path: /health
             port: 3000
+
+        envFrom:
+        - configMapRef: 
+            name: backend_config
+        - secretRef:
+            name: backend-secret
