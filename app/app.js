@@ -4,7 +4,7 @@ const PORT = 3000;
 
 // Application baseline route
 app.get('/', (req, res) => {
-    res.send('Phase 1 DevSecOps Pipeline: Secure and Operational!');
+    res.send('Phase 2 DevSecOps Pipeline: Secure and Operational!');
 });
 
 // Health check endpoint for Kubernetes liveness/readiness probes
