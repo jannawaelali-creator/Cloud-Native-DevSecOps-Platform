@@ -70,6 +70,8 @@ pipeline {
                     kubectl apply -f backend_configmap.yml
                     kubectl apply -f backend_secret.yml
                     kubectl apply -f ingress.yml
+                    kubectl apply -f headless_service.yml
+                    kubectl apply -f stateful_db.yml
 
                     echo "Deploying version ${BUILD_NUMBER} to Kubernetes..."
                     sed -i "s/latest/$BUILD_NUMBER/g"   backend_deployment.yml

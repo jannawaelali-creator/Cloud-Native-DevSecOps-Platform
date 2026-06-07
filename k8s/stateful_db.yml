@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: StatefulSet   # ⚡ Notice we are using StatefulSet here instead of Deployment!
+metadata:
+  name: postgres-db
+  namespace: devops-project
+spec:
+  serviceName: "postgres-service"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        ports:
+        - containerPort: 5432
+        env:
+        # We pull the database password securely from your existing Secret manifest!
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: backend-secret
+              key: DB_PASSWORD
+        volumeMounts:
+        - name: pgdata
+          mountPath: /var/lib/postgresql/data
+  # ⚡ This block automatically creates the permanent hard drive volume for the database
+  volumeClaimTemplates:
+  - metadata:
+      name: pgdata
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi

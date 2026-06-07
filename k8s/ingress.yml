@@ -24,3 +24,11 @@ spec:
             name: backend-svc
             port:
               number: 8080
+
+      - path: /health
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-svc
+            port:
+              number: 8080       
