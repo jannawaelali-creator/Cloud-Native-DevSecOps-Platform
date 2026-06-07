@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: database-firewall
+  namespace: devops-project
+spec:
+  podSelector:
+    matchLabels:
+      app: postgres          # Apply this firewall to your Postgres database pod
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: backend       # ⚡ ONLY allow traffic coming from your Node.js backend!
+    ports:
+    - protocol: TCP
+      port: 5432             # Open ONLY the database port
