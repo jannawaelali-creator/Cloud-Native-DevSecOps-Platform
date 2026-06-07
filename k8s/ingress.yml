@@ -10,17 +10,17 @@ spec:
   - host: app.com
     http:
       paths:
-      - path: /front
+      - path: /
         pathType: Prefix
         backend:
           service:
             name: frontend-svc
             port:
               number: 80
-      - path: /back
+      - path: /api
         pathType: Prefix
         backend:
           service:
             name: backend-svc
             port:
-              number: 3000
+              number: 8080
