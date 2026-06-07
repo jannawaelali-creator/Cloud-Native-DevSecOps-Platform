@@ -4,11 +4,10 @@ metadata:
   name: frontend-svc
   namespace: devops-project
 spec:
-  type: NodePort
+  type: clusterIP
   ports:
   - port: 80          
     targetPort: 80 
-    nodePort: 30007   
   selector:
     app: frontend
 
