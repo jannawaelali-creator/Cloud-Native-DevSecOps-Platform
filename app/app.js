@@ -7,7 +7,7 @@ const ENVIRONMENT = process.env.NODE_ENV || 'development'
 const DB_SIGNING_KEY = process.env.API_SIGNING_KEY;
 
 
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
     if (!DB_SIGNING_KEY) {
         res.status(500).send(`[Backend Error]: API_SIGNING_KEY is missing! Connection to DB refused.`);
     } else {
