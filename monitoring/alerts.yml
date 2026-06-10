@@ -1,0 +1,41 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: custom-alerts
+  namespace: devops-project
+  labels:
+    release: tracking-stack
+
+spec:
+  groups:
+  - name: custom.rules
+
+    rules:
+
+    - alert: HighCPUUsage
+      expr: sum by (pod) (rate(container_cpu_usage_seconds_total{namespace="devops-project",container!=""}[5m])) > 0.01 
+
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: High CPU Usage
+        description: Pod {{ $labels.pod }} is consuming high CPU.
+
+    - alert: HighMemoryUsage
+      expr: sum(container_memory_usage_bytes{namespace="devops-project"}) by (pod) > 100000000
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: High Memory Usage
+        description: Pod {{ $labels.pod }} memory usage is high.
+
+    - alert: PodRestarting
+      expr: increase(kube_pod_container_status_restarts_total{namespace="devops-project"}[5m]) > 0
+      for: 30s
+      labels:
+        severity: critical
+      annotations:
+        summary: Pod Restarting
+        description: Pod {{ $labels.pod }} restarted.

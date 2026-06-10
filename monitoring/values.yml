@@ -1,0 +1,4 @@
+alertmanager:
+  enabled: true
+  spec:
+    configSecret: alertmanager-gmail-config
