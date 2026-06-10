@@ -6,6 +6,11 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: "nginx"
 spec:
+  tls:
+  - hosts: 
+    - app.com
+    secretName: app-tls-secret
+        
   rules:
   - host: app.com
     http:
