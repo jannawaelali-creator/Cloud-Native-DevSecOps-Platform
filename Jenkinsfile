@@ -35,6 +35,20 @@ pipeline {
             }
         }
 
+
+        stage('Security Scan (Trivy)') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    echo "🛡️ Scanning Backend Image for High/Critical Vulnerabilities..."
+                    
+                    sh "trivy image --severity HIGH,CRITICAL --exit-code 1 ${USERNAME}/backend-app:${BUILD_NUMBER}"
+                    
+                    echo "🛡️ Scanning Frontend Image for High/Critical Vulnerabilities..."
+                    sh "trivy image --severity HIGH,CRITICAL --exit-code 1 ${USERNAME}/frontend-app:${BUILD_NUMBER}"
+                }
+            }
+        }
+
         stage('Push ') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
