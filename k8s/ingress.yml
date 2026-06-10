@@ -9,6 +9,7 @@ spec:
   tls:
   - hosts: 
     - app.com
+    - grafana.app.com
     secretName: app-tls-secret
         
   rules:
@@ -38,10 +39,13 @@ spec:
             port:
               number: 8080 
 
-      - path: /grafana 
+  - host: grafana.app.com
+    http:
+      paths:
+      - path: /
         pathType: Prefix
         backend:
           service:
-            name: tracking-stack-grafana 
+            name: tracking-stack-grafana       
             port:
-              number: 80              
+              number: 80
