@@ -13,7 +13,7 @@ spec:
     secretName: app-tls-secret
         
   rules:
-  - host: app.com
+  - host: app.local
     http:
       paths:
       - path: /
@@ -39,7 +39,7 @@ spec:
             port:
               number: 8080 
 
-  - host: grafana.app.com
+  - host: grafana.local
     http:
       paths:
       - path: /
