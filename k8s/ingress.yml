@@ -36,4 +36,12 @@ spec:
           service:
             name: backend-svc
             port:
-              number: 8080       
+              number: 8080 
+
+      - path: /grafana 
+        pathType: Prefix
+        backend:
+          service:
+            name: grafana-svc
+            port:
+              number: 80              
