@@ -42,6 +42,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: grafana-svc
+            name: tracking-stack-grafana 
             port:
               number: 80              
