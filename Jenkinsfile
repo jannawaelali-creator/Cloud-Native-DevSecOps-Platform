@@ -96,7 +96,7 @@ pipeline {
                     kubectl apply -f frontend_deployment.yml
                     kubectl apply -f frontend_service.yml
 
-                    kubectl apply -f ./monitoring/alerts.yml
+                    
 
                    
                 '''
