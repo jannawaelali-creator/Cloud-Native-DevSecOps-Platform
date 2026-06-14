@@ -1,0 +1,46 @@
+- hosts: jenkins_slave
+  become: yes
+
+  tasks:
+
+    - name: Install required tools
+      ansible.builtin.package:
+        name:
+          - git
+          - docker
+          - java-21-amazon-corretto
+        state: present
+
+    - name: Enable and start Docker service
+      ansible.builtin.systemd:
+        name: docker
+        enabled: true
+        state: started
+
+    - name: Add ec2-user to docker group
+      ansible.builtin.user:
+        name: ec2-user
+        groups: docker
+        append: true
+
+    - name: Ensure Docker socket permissions (fix Jenkins issues)
+      ansible.builtin.file:
+        path: /var/run/docker.sock
+        mode: "0666"
+
+
+
+    - name: Install DevOps tools
+      ansible.builtin.package:
+         name:
+          - awscli
+         state: present
+
+
+
+    - name: Install kubectl
+      ansible.builtin.shell: |
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+      args:
+        creates: /usr/local/bin/kubectl        
