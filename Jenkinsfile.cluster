@@ -111,6 +111,7 @@ pipeline {
                     --name ebs-csi-controller-sa \
                     --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
                     --approve
+                    --override-existing-serviceaccounts
 
                 echo "=== Verifying SA created ==="
                 kubectl get sa ebs-csi-controller-sa -n kube-system -o yaml
