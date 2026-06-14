@@ -93,6 +93,7 @@ pipeline {
                     kubectl create namespace devops-project                 
                     kubectl apply -f backend_configmap.yml
                     kubectl apply -f backend_secret.yml
+                    kubectl apply -f storageclass.yml
                     kubectl apply -f ingress.yml
                     kubectl apply -f headless_service.yml
                     kubectl apply -f stateful_db.yml
