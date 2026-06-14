@@ -1,6 +1,6 @@
 pipeline {
     // This tells Jenkins to run this job specifically on your private EC2 slave
-    agent any
+    agent { label 'jenkins_slave' }
         
           environment {
         AWS_REGION = 'us-east-1'          
