@@ -25,7 +25,7 @@ pipeline {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-credentials']]) {
-                    sh ''' #!/bin/bash
+                    sh '''#!/bin/bash
                         aws sts get-caller-identity
                         aws eks update-kubeconfig \
                             --region ${params.REGION} \
@@ -40,7 +40,7 @@ pipeline {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-credentials']]) {
-                    sh ''' #!/bin/bash
+                    sh '''#!/bin/bash
                         eksctl utils associate-iam-oidc-provider \
                             --cluster ${params.CLUSTER_NAME} \
                             --region ${params.REGION} \
@@ -54,7 +54,7 @@ pipeline {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-credentials']]) {
-                    sh ''' #!/bin/bash
+                    sh '''#!/bin/bash
                         # Check if already exists — skip if so
                         if kubectl get sa aws-load-balancer-controller -n kube-system > /dev/null 2>&1; then
                             echo " Service account already exists, skipping..."
@@ -78,7 +78,7 @@ pipeline {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-credentials']]) {
 
-                    sh ''' #!/bin/bash
+                    sh '''#!/bin/bash
                         # Check if already installed — skip if so
                         if helm status aws-load-balancer-controller -n kube-system > /dev/null 2>&1; then
                             echo " ALB controller already installed, skipping..."
@@ -103,7 +103,7 @@ pipeline {
             steps { 
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-credentials']]) {
-                    sh ''' #!/bin/bash
+                    sh '''#!/bin/bash
                         echo "=== Nodes ==="
                         kubectl get nodes
 
