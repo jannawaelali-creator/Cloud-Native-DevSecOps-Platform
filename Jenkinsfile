@@ -2,6 +2,11 @@ pipeline {
     // This tells Jenkins to run this job specifically on your private EC2 slave
     agent any
         
+          environment {
+        AWS_REGION = 'us-east-1'          
+        CLUSTER_NAME = 'my-eks-cluster'
+    }
+
     
     stages {
         stage('Pull Code') {
@@ -76,9 +81,14 @@ pipeline {
       stage ('Deploy') {
             steps {
 
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-credentials']]) {
+
               dir('k8s') {
-                withKubeConfig([credentialsId: 'kubeconfig']) {
+
+               
                 sh '''
+                    aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}
 
                  
                     kubectl apply -f backend_configmap.yml

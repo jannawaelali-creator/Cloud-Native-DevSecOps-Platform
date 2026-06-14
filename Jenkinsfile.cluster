@@ -1,0 +1,129 @@
+pipeline {
+    agent any
+
+   parameters {
+        string(
+            name: 'CLUSTER_NAME',
+            defaultValue: 'my-eks-cluster',
+            description: 'EKS cluster name'
+        )
+        string(
+            name: 'REGION',
+            defaultValue: 'us-east-1',
+            description: 'AWS region'
+        )
+        string(
+            name: 'VPC_ID',
+            defaultValue: 'vpc-09251c2b0b1f01a5f',
+            description: 'VPC ID for ALB controller'
+        )
+    }
+
+    stages {
+
+        stage('Configure AWS & Kubeconfig') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-credentials']]) {
+                    sh '''
+                        aws sts get-caller-identity
+                        aws eks update-kubeconfig \
+                            --region ${params.REGION} \
+                            --name ${params.CLUSTER_NAME}
+                        kubectl cluster-info
+                    '''
+                }
+            }
+        }
+
+        stage('Associate OIDC Provider') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-credentials']]) {
+                    sh '''
+                        eksctl utils associate-iam-oidc-provider \
+                            --cluster ${params.CLUSTER_NAME} \
+                            --region ${params.REGION} \
+                            --approve
+                    '''
+                }
+            }
+        }
+
+        stage('Create IAM Service Account for ALB') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-credentials']]) {
+                    sh '''
+                        # Check if already exists — skip if so
+                        if kubectl get sa aws-load-balancer-controller -n kube-system > /dev/null 2>&1; then
+                            echo " Service account already exists, skipping..."
+                        else
+                            eksctl create iamserviceaccount \
+                                --cluster ${params.CLUSTER_NAME} \
+                                --region ${params.REGION} \
+                                --namespace kube-system \
+                                --name aws-load-balancer-controller \
+                                --attach-policy-arn arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess \
+                                --approve \
+                                --override-existing-serviceaccounts
+                        fi
+                    '''
+                }
+            }
+        }
+
+        stage('Install ALB Controller') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-credentials']]) {
+
+                    sh '''
+                        # Check if already installed — skip if so
+                        if helm status aws-load-balancer-controller -n kube-system > /dev/null 2>&1; then
+                            echo " ALB controller already installed, skipping..."
+                        else
+                            helm repo add eks https://aws.github.io/eks-charts
+                            helm repo update 
+                            helm install aws-load-balancer-controller \
+                                ./aws-load-balancer-controller-*.tgz \
+                                -n kube-system \
+                                --set clusterName=${params.CLUSTER_NAME} \
+                                --set serviceAccount.create=false \
+                                --set serviceAccount.name=aws-load-balancer-controller \
+                                --set region=${params.REGION} \
+                                --set vpcId=${params.VPC_ID}
+                        fi
+                    '''
+                }
+            }
+        }
+
+        stage('Verify Bootstrap') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-credentials']]) {
+                    sh '''
+                        echo "=== Nodes ==="
+                        kubectl get nodes
+
+                        echo "=== ALB Controller ==="
+                        kubectl get pods -n kube-system | grep aws-load-balancer
+
+                        echo "=== Service Account ==="
+                        kubectl get sa aws-load-balancer-controller -n kube-system -o yaml
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo ' Cluster bootstrap complete! Ready for app deployment.'
+        }
+        failure {
+            echo ' Bootstrap failed. Check logs above.'
+        }
+    }
+}

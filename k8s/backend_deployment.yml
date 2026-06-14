@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: devops-app
-        image: jannawael/backend-app:48
+        image: jannawael/backend-app:latest
 
         ports:
         - containerPort: 3000

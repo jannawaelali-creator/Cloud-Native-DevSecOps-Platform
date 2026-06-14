@@ -3,3 +3,7 @@ app/node_modules
 *.crt
 *.pem
 *.p12a
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
