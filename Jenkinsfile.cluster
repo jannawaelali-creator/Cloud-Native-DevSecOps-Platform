@@ -52,7 +52,7 @@ pipeline {
                         if kubectl get sa aws-load-balancer-controller -n kube-system > /dev/null 2>&1; then
                             echo " Service account already exists, skipping..."
                         else
-                            eksctl eksctl create iamserviceaccount \
+                            eksctl create iamserviceaccount \
                             --cluster ${CLUSTER_NAME} \
                             --region ${REGION} \
                             --namespace kube-system \
