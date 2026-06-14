@@ -4,25 +4,26 @@ metadata:
   name: platform-ingress
   namespace: devops-project
   annotations:
-    kubernetes.io/ingress.class: "nginx"
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/group.name: devops-project
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+   
+
 spec:
-  tls:
-  - hosts: 
-    - app.com
-    - grafana.app.com
-    secretName: app-tls-secret
+  ingressClassName: alb
+  # tls:
+  # - hosts: 
+    # - app.com
+    # - grafana.app.com
+    # secretName: app-tls-secret
         
   rules:
   - host: app.local
     http:
       paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: frontend-svc
-            port:
-              number: 80
+
       - path: /api
         pathType: Prefix
         backend:
@@ -39,6 +40,15 @@ spec:
             port:
               number: 8080 
 
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-svc
+            port:
+              number: 80
+      
+
   - host: grafana.local
     http:
       paths:
@@ -46,6 +56,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: tracking-stack-grafana       
+            name: monitoring-grafana    
             port:
               number: 80

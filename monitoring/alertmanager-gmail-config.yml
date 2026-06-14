@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: alertmanager-gmail-config
+  namespace: devops-project
+type: Opaque
+stringData:
+  alertmanager.yaml: |
+    global:
+      smtp_smarthost: 'smtp.gmail.com:587'
+      smtp_from: 'janna.wael.ali@gmail.com'
+      smtp_require_tls: true
+
+    route:
+      group_by: ['alertname', 'namespace']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 2m
+      receiver: 'gmail-inbox'
+
+    receivers:
+    - name: 'gmail-inbox'
+      email_configs:
+      - to: 'janna.wael.ali@gmail.com'
+        send_resolved: true
+        # 🔑 Authenticating your sender account securely
+        auth_username: 'janna.wael.ali@gmail.com'
+        auth_identity: 'janna.wael.ali@gmail.com'
+        auth_password: 'xfac ehfn qtom umkg

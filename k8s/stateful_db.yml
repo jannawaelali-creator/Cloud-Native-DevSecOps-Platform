@@ -29,11 +29,14 @@ spec:
         volumeMounts:
         - name: pgdata
           mountPath: /var/lib/postgresql/data
+          subPath: postgres
   # ⚡ This block automatically creates the permanent hard drive volume for the database
   volumeClaimTemplates:
   - metadata:
       name: pgdata
+
     spec:
+      storageClassName: gp3-csi 
       accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
