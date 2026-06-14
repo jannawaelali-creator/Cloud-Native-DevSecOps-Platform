@@ -57,7 +57,7 @@ pipeline {
                                 --region ${REGION} \
                                 --namespace kube-system \
                                 --name aws-load-balancer-controller \
-                                --attach-policy-arn arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess \
+                                --attach-policy-arn arn:aws:iam::aws:policy/AWSLoadBalancerControllerIAMPolicy  \
                                 --approve \
                                 --override-existing-serviceaccounts
                         fi
