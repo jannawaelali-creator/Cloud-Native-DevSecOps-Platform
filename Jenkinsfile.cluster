@@ -139,6 +139,7 @@ pipeline {
                         --addon-name aws-ebs-csi-driver \
                         --region ${REGION} \
                         --service-account-role-arn ${ROLE_ARN}
+                        --resolve-conflicts OVERWRITE
                 fi
 
                 echo "=== Waiting for EBS CSI to be active ==="
