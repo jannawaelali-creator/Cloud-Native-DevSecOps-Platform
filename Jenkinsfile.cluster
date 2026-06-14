@@ -1,22 +1,16 @@
 pipeline {
     agent any
 
-   parameters {
-        string(
-            name: 'CLUSTER_NAME',
-            defaultValue: 'my-eks-cluster',
-            description: 'EKS cluster name'
-        )
-        string(
-            name: 'REGION',
-            defaultValue: 'us-east-1',
-            description: 'AWS region'
-        )
-        string(
-            name: 'VPC_ID',
-            defaultValue: 'vpc-09251c2b0b1f01a5f',
-            description: 'VPC ID for ALB controller'
-        )
+    parameters {
+        string(name: 'CLUSTER_NAME', defaultValue: 'my-eks-cluster', description: 'EKS cluster name')
+        string(name: 'REGION', defaultValue: 'us-east-1', description: 'AWS region')
+        string(name: 'VPC_ID', defaultValue: 'vpc-09251c2b0b1f01a5f', description: 'VPC ID for ALB controller')
+    }
+
+    environment {
+        CLUSTER_NAME = "${params.CLUSTER_NAME}"
+        REGION       = "${params.REGION}"
+        VPC_ID       = "${params.VPC_ID}"
     }
 
     stages {
@@ -28,8 +22,8 @@ pipeline {
                     sh '''#!/bin/bash
                         aws sts get-caller-identity
                         aws eks update-kubeconfig \
-                            --region ${params.REGION} \
-                            --name ${params.CLUSTER_NAME}
+                            --region ${REGION} \
+                            --name ${CLUSTER_NAME}
                         kubectl cluster-info
                     '''
                 }
@@ -42,8 +36,8 @@ pipeline {
                     credentialsId: 'aws-credentials']]) {
                     sh '''#!/bin/bash
                         eksctl utils associate-iam-oidc-provider \
-                            --cluster ${params.CLUSTER_NAME} \
-                            --region ${params.REGION} \
+                            --cluster ${CLUSTER_NAME} \
+                            --region ${REGION} \
                             --approve
                     '''
                 }
@@ -55,13 +49,12 @@ pipeline {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-credentials']]) {
                     sh '''#!/bin/bash
-                        # Check if already exists — skip if so
                         if kubectl get sa aws-load-balancer-controller -n kube-system > /dev/null 2>&1; then
                             echo " Service account already exists, skipping..."
                         else
                             eksctl create iamserviceaccount \
-                                --cluster ${params.CLUSTER_NAME} \
-                                --region ${params.REGION} \
+                                --cluster ${CLUSTER_NAME} \
+                                --region ${REGION} \
                                 --namespace kube-system \
                                 --name aws-load-balancer-controller \
                                 --attach-policy-arn arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess \
@@ -77,22 +70,18 @@ pipeline {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-credentials']]) {
-
                     sh '''#!/bin/bash
-                        # Check if already installed — skip if so
                         if helm status aws-load-balancer-controller -n kube-system > /dev/null 2>&1; then
                             echo " ALB controller already installed, skipping..."
                         else
-                            helm repo add eks https://aws.github.io/eks-charts
-                            helm repo update 
                             helm install aws-load-balancer-controller \
                                 ./aws-load-balancer-controller-*.tgz \
                                 -n kube-system \
-                                --set clusterName=${params.CLUSTER_NAME} \
+                                --set clusterName=${CLUSTER_NAME} \
                                 --set serviceAccount.create=false \
                                 --set serviceAccount.name=aws-load-balancer-controller \
-                                --set region=${params.REGION} \
-                                --set vpcId=${params.VPC_ID}
+                                --set region=${REGION} \
+                                --set vpcId=${VPC_ID}
                         fi
                     '''
                 }
@@ -100,7 +89,7 @@ pipeline {
         }
 
         stage('Verify Bootstrap') {
-            steps { 
+            steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-credentials']]) {
                     sh '''#!/bin/bash
