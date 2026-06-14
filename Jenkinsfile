@@ -117,7 +117,7 @@ pipeline {
     }
     }
 
-    stage('Deploy Monitoring (Prometheus + Grafana)') {
+ stage('Deploy Monitoring Stack') {
     steps {
         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
             credentialsId: 'aws-credentials']]) {
@@ -125,18 +125,18 @@ pipeline {
             sh '''
                 aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}
 
-                # Add Helm repo
                 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
                 helm repo update
 
-              
+                kubectl create namespace monitoring || true
 
-                # Install or upgrade full monitoring stack
                 helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
-                    -n devops-project
+                    -n monitoring \
+                    --create-namespace \
+                    --timeout 15m \
+                    --wait
             '''
         }
     }
-}
 }
 }
