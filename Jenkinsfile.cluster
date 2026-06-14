@@ -61,9 +61,14 @@ pipeline {
                                 --approve \
                                 --override-existing-serviceaccounts
                         fi
-                            
+                             ROLE_ARN=$(kubectl get sa ebs-csi-controller-sa \
+                             -n kube-system \
+                             -o jsonpath="{.metadata.annotations.eks\\.amazonaws\\.com/role-arn}")
+     
+                              giecho "EBS CSI Role ARN: ${ROLE_ARN}"
 
-                             if aws eks describe-addon \
+                              
+                        if aws eks describe-addon \
                     --cluster-name ${CLUSTER_NAME} \
                     --addon-name aws-ebs-csi-driver \
                     --region ${REGION} > /dev/null 2>&1; then
@@ -73,9 +78,7 @@ pipeline {
                         --cluster-name ${CLUSTER_NAME} \
                         --addon-name aws-ebs-csi-driver \
                         --region ${REGION} \
-                        --service-account-role-arn $(kubectl get sa ebs-csi-controller-sa \
-                            -n kube-system \
-                            -o jsonpath='{.metadata.annotations.eks\.amazonaws\.com/role-arn}')
+                        --service-account-role-arn ${ROLE_ARN}
                 fi
 
                 # Wait for addon to be active
@@ -87,7 +90,7 @@ pipeline {
 
                 echo "=== EBS CSI Driver pods ==="
                 kubectl get pods -n kube-system | grep ebs
-
+              
 
                     '''
                 }
