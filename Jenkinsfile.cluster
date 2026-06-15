@@ -236,13 +236,5 @@ pipeline {
       }
 }
 
-    post {
-        success {
-            echo ' Cluster bootstrap complete! Ready for app deployment.'
-        }
-        failure {
-            echo ' Bootstrap failed. Check logs above.'
-        }
-    }
 }
 }
