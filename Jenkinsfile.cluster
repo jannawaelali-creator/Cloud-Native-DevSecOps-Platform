@@ -213,7 +213,7 @@ pipeline {
                 }
             }
         }
-    }
+   
 
     stage('Install ArgoCD') {
       steps {
@@ -244,4 +244,5 @@ pipeline {
             echo ' Bootstrap failed. Check logs above.'
         }
     }
+}
 }
