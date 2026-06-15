@@ -103,13 +103,15 @@ pipeline {
                     '''
                 }
             }
-        }stage('Install EBS CSI Driver') {
+        }
+        
+        stage('Install EBS CSI Driver') {
     steps {
         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
             credentialsId: 'aws-credentials']]) {
 
             sh '''#!/bin/bash
-            set -e
+           
 
             echo "=== Checking EBS CSI addon ==="
 
