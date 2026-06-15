@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: my-first-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/jannawaelali-creator/Cloud-Native-DevSecOps-Platform.git
+    targetRevision: HEAD
+    path: k8s
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: devops-project 
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
