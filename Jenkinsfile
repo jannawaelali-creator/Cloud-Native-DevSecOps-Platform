@@ -77,44 +77,61 @@ pipeline {
               
         }
 
-        
-      stage ('Deploy') {
-            steps {
+        stage('Update Git for ArgoCD') {
+           steps {
+         sh '''
+           git config --global user.email "jenkins@local"
+           git config --global user.name "jenkins"
 
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'aws-credentials']]) {
+           git clone https://github.com/jannawaelali-creator/Cloud-Native-DevSecOps-Platform.git repo
+           cd repo/k8s
 
-              dir('k8s') {
+          sed -i "s|frontend-app:.*|frontend-app:${BUILD_NUMBER}|g" frontend_deployment.yml
+          sed -i "s|backend-app:.*|backend-app:${BUILD_NUMBER}|g" backend_deployment.yml
+
+           git add .
+          git commit -m "Update image to ${BUILD_NUMBER}"
+          git push
+          '''
+  }
+}
+    //   stage ('Deploy') {
+    //         steps {
+
+    //             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
+    //                 credentialsId: 'aws-credentials']]) {
+
+    //           dir('k8s') {
 
                
-                sh '''
-                    aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}
+    //             sh '''
+    //                 aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}
                     
-                    kubectl apply -f backend_configmap.yml
-                    kubectl apply -f backend_secret.yml
-                    kubectl apply -f storageclass.yml
-                    kubectl apply -f ingress.yml
-                    kubectl apply -f headless_service.yml
-                    kubectl apply -f stateful_db.yml
+    //                 kubectl apply -f backend_configmap.yml
+    //                 kubectl apply -f backend_secret.yml
+    //                 kubectl apply -f storageclass.yml
+    //                 kubectl apply -f ingress.yml
+    //                 kubectl apply -f headless_service.yml
+    //                 kubectl apply -f stateful_db.yml
 
-                    echo "Deploying version ${BUILD_NUMBER} to Kubernetes..."
-                    sed -i "s/latest/$BUILD_NUMBER/g"   backend_deployment.yml
-                    sed -i "s/latest/$BUILD_NUMBER/g"   frontend_deployment.yml
+    //                 echo "Deploying version ${BUILD_NUMBER} to Kubernetes..."
+    //                 sed -i "s/latest/$BUILD_NUMBER/g"   backend_deployment.yml
+    //                 sed -i "s/latest/$BUILD_NUMBER/g"   frontend_deployment.yml
 
-                    kubectl apply -f backend_deployment.yml
-                    kubectl apply -f backend_service.yml
-                    kubectl apply -f frontend_deployment.yml
-                    kubectl apply -f frontend_service.yml
+    //                 kubectl apply -f backend_deployment.yml
+    //                 kubectl apply -f backend_service.yml
+    //                 kubectl apply -f frontend_deployment.yml
+    //                 kubectl apply -f frontend_service.yml
 
                     
 
                    
-                '''
-              }
-              }
+    //             '''
+    //           }
+    //           }
     
-    }
-    }
+    // }
+    // }
 
 
 
