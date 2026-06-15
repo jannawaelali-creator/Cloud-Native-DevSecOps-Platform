@@ -54,7 +54,8 @@ pipeline {
                             --cluster ${CLUSTER_NAME} \
                             --region ${REGION} \
                             --namespace kube-system \
-                            --name aws-load-balancer-controller 2>/dev/null || true
+                            --name aws-load-balancer-controller 2>/dev/null || true \
+                            --wait || true
                             
                         if kubectl get sa aws-load-balancer-controller -n kube-system > /dev/null 2>&1; then
                             echo " Service account already exists, skipping..."
