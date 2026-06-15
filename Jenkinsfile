@@ -90,7 +90,6 @@ pipeline {
                 sh '''
                     aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}
                     
-                                 
                     kubectl apply -f backend_configmap.yml
                     kubectl apply -f backend_secret.yml
                     kubectl apply -f storageclass.yml
