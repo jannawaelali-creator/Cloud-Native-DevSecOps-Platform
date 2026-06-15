@@ -43,4 +43,56 @@
         curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
         install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
       args:
-        creates: /usr/local/bin/kubectl        
+        creates: /usr/local/bin/kubectl 
+
+
+
+    ## Install Trivy
+    - name: Install Trivy vulnerability scanner
+      become: yes
+      shell: |
+        curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+      args:
+        creates: /usr/local/bin/trivy
+
+# Verify installation
+    - name: Check Trivy version
+      command: /usr/local/bin/trivy --version
+       
+
+
+
+    - name: Install eksctl
+      become: yes
+      shell: |
+          curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz" | tar xz -C /tmp
+          mv /tmp/eksctl /usr/local/bin/eksctl
+          chmod +x /usr/local/bin/eksctl
+      args:
+        creates: /usr/local/bin/eksctl
+
+    - name: Check eksctl version
+      command: eksctl version
+
+    - name: Install helm
+      become: yes
+      shell: |
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      args:
+        creates: /usr/local/bin/helm
+
+    - name: Check helm version
+      command: helm version
+
+    - name: Install AWS CLI v2
+      become: yes
+      shell: |
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+        unzip -o /tmp/awscliv2.zip -d /tmp
+        /tmp/aws/install --update
+        rm -rf /tmp/awscliv2.zip /tmp/aws
+      args:
+        creates: /usr/local/bin/aws
+
+    - name: Check AWS CLI version
+      command: aws --version
