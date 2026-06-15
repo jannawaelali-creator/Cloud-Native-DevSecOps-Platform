@@ -108,6 +108,7 @@ pipeline {
                     --cluster-name ${CLUSTER_NAME} \
                     --addon-name aws-ebs-csi-driver \
                     --region ${REGION} 2>/dev/null || true
+                    --wait || true
 
                 echo "=== Deleting existing IAM Service Account ==="
                 eksctl delete iamserviceaccount \
