@@ -216,7 +216,9 @@ pipeline {
     }
 
     stage('Install ArgoCD') {
-    steps {
+      steps {
+        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-credentials']]) {
         sh '''
         kubectl create namespace argocd \
         --dry-run=client -o yaml | kubectl apply -f -
@@ -231,6 +233,7 @@ pipeline {
         -n argocd
         '''
     }
+      }
 }
 
     post {
