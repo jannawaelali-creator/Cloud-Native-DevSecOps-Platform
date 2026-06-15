@@ -113,7 +113,8 @@ pipeline {
                     --cluster ${CLUSTER_NAME} \
                     --region ${REGION} \
                     --namespace kube-system \
-                    --name ebs-csi-controller-sa 2>/dev/null || true
+                    --name ebs-csi-controller-sa 2>/dev/null || true \
+                    --wait || true
 
 
                 echo "=== Creating EBS CSI IAM Service Account ==="
