@@ -76,23 +76,34 @@ pipeline {
               
               
         }
+stage('Update Git for ArgoCD') {
+  steps {
+    withCredentials([usernamePassword(
+        credentialsId: 'github-creds',
+        usernameVariable: 'GIT_USER',
+        passwordVariable: 'GIT_TOKEN'
+    )]) {
 
-        stage('Update Git for ArgoCD') {
-           steps {
-         sh '''
-           git config --global user.email "jenkins@local"
-           git config --global user.name "jenkins"
+      sh '''
+        git config --global user.email "jenkins@local"
+        git config --global user.name "jenkins"
 
-           git clone https://github.com/jannawaelali-creator/Cloud-Native-DevSecOps-Platform.git repo
-           cd repo/k8s
+          rm -rf repo
 
-          sed -i "s|frontend-app:.*|frontend-app:${BUILD_NUMBER}|g" frontend_deployment.yml
-          sed -i "s|backend-app:.*|backend-app:${BUILD_NUMBER}|g" backend_deployment.yml
+        git clone https://github.com/jannawaelali-creator/Cloud-Native-DevSecOps-Platform.git repo
+        cd repo/k8s
 
-           git add .
-          git commit -m "Update image to ${BUILD_NUMBER}"
-          git push
-          '''
+        sed -i 's|frontend-app:.*|frontend-app:95|g' frontend_deployment.yml
+        sed -i 's|backend-app:.*|backend-app:95|g' backend_deployment.yml
+
+        git add .
+        git commit -m "Update image to 95"
+
+        git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/jannawaelali-creator/Cloud-Native-DevSecOps-Platform.git
+
+        git push origin main
+      '''
+    }
   }
 }
     //   stage ('Deploy') {
