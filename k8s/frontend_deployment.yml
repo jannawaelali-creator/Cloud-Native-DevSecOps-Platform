@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: jannawael/frontend-app:92
+        image: jannawael/frontend-app:95
 
         ports:
         - containerPort: 80
