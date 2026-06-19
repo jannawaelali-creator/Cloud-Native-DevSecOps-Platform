@@ -1,5 +1,5 @@
-
 # ☁️ Cloud-Native DevSecOps Platform
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/93e2fb96-a4bb-4b00-9444-6bf7200d442e" />
 
 **A production-grade, security-first CI/CD platform built on AWS EKS — featuring GitOps delivery via ArgoCD, automated infrastructure with Terraform & Ansible, and full-stack observability with Prometheus & Grafana.**
 
@@ -386,23 +386,43 @@ The `ansible/` playbook provisions a fresh EC2 instance with everything the Jenk
 
 ---
 
-## 🧱 Key Engineering Decisions
 
-| Decision | Rationale |
-|---|---|
-| **Separate `Jenkinsfile` + `Jenkinsfile.cluster`** | App CI and cluster bootstrap have different change frequencies and audiences — mixing them makes both harder to reason about and maintain |
-| **ArgoCD for CD, not Jenkins** | GitOps gives auditability, drift detection, and self-healing; removes `kubectl` credentials from Jenkins entirely |
-| **Always delete/recreate IAM service accounts** | Prevents CloudFormation stack drift between `eksctl` runs — updating an out-of-sync SA is unreliable |
-| **Commit Helm `.tgz` files locally** | Eliminates flaky chart downloads in a restricted CI network; guarantees reproducible installs |
-| **`#!/bin/bash` shebang + `environment {}` block** | Jenkins defaults to `dash` which silently breaks `${params.X}` interpolation — explicit bash shebang and `environment` block fixes it |
-| **`--resolve-conflicts OVERWRITE` on EBS CSI** | Required to resolve `ConfigurationConflict` errors when the addon exists with conflicting settings |
-| **ROLE_ARN validation before addon creation** | Fail-fast guard: exits immediately if the IRSA annotation is missing after SA creation, preventing a broken addon install |
-| **Headless service for DB StatefulSet** | Provides stable, predictable DNS (`db-0.db-headless`) for each DB pod instead of relying on a ClusterIP that could change |
-| **Prometheus control plane scraping disabled** | EKS doesn't expose `kube-controller-manager` / `kube-scheduler` endpoints — disabling prevents permanent false-positive alerts |
-| **`busybox` init container for Alertmanager** | Alertmanager has no native env var substitution — the init container writes Gmail OAuth2 credentials from a Secret into the config file before the main container starts |
+### 🌐 Public DNS with Amazon Route 53
 
----
+Currently, the platform uses local hostname mappings (`app.local` and `grafana.local`) configured through the `/etc/hosts` file for development and testing.
 
+As a future enhancement, the platform can be integrated with **Amazon Route 53** to provide public DNS records for the application and monitoring services.
+
+With this enhancement:
+
+- Register or use an existing domain (e.g., `example.com`)
+- Create Route 53 hosted zones and DNS records
+- Point DNS records to the AWS Application Load Balancer
+- Remove the need to manually edit `/etc/hosts`
+- Enable access from anywhere over the Internet
+- Integrate with AWS Certificate Manager (ACM) for HTTPS/TLS
+- Support production-ready deployments with secure, user-friendly domain names
+
+**Future architecture:**
+
+```
+Users
+   │
+   ▼
+Route 53
+   │
+   ▼
+Application Load Balancer
+   │
+NGINX Ingress
+   ├──────────► app.example.com
+   └──────────► grafana.example.com
+                  │
+                  ▼
+              Amazon EKS
+```
+
+This enhancement transforms the platform from a locally accessible environment into a production-ready deployment with publicly accessible domain names and secure HTTPS connectivity.
 ## 🚀 Getting Started
 
 ### Prerequisites
